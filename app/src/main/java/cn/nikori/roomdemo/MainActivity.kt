@@ -1,6 +1,7 @@
 package cn.nikori.roomdemo
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -10,12 +11,19 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity() {
     private lateinit var wordViewModel: WordViewModel
 
-    private val adapter1 by lazy { MyAdapter(false) }
-    private val adapter2 by lazy { MyAdapter(true) }
+    private val adapter1 by lazy { MyAdapter(false, wordViewModel) }
+    private val adapter2 by lazy { MyAdapter(true, wordViewModel) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        wordViewModel = ViewModelProviders.of(this).get(WordViewModel::class.java)
+        wordViewModel.getAllWords().observe(this, Observer<List<Word>> {
+            Log.e("myLog", "viewModel observe")
+            adapter1.setData(it)
+            adapter2.setData(it)
+        })
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter1
@@ -27,12 +35,6 @@ class MainActivity : AppCompatActivity() {
                 recyclerView.adapter = adapter1
             }
         }
-
-        wordViewModel = ViewModelProviders.of(this).get(WordViewModel::class.java)
-        wordViewModel.getAllWords().observe(this, Observer<List<Word>> {
-            adapter1.setData(it)
-            adapter2.setData(it)
-        })
 
         btn_insert.setOnClickListener {
             val english = arrayOf(

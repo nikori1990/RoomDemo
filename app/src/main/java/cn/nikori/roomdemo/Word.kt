@@ -11,9 +11,11 @@ class Word(
 
     @ColumnInfo(name = "chinese_meaning")
     val chineseMeaning: String
+
 ) {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
 
-    var bar: Int = 1
+    @ColumnInfo(name = "chinese_invisible")
+    var chineseInvisible: Boolean = true
 }
