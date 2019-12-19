@@ -33,7 +33,7 @@ class MyAdapter(private val userCardView: Boolean, private val wordViewModel: Wo
             it.context.startActivity(intent)
         }
 
-        itemView.switch_invisible.setOnCheckedChangeListener { buttonView, isChecked ->
+        itemView.switch_invisible.setOnCheckedChangeListener { _, isChecked ->
             val data = itemView.getTag(R.id.word_for_view_holder) as Word
             val position = itemView.getTag(R.id.position_for_view_holder) as Int
             data.chineseInvisible = isChecked

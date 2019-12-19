@@ -35,4 +35,7 @@ interface WordDao {
 
     @Query("SELECT * FROM word ORDER BY id DESC")
     fun getAllWordsLive(): LiveData<List<Word>>
+
+    @Query("SELECT * FROM word WHERE english_word LIKE :pattern ORDER BY ID DESC")
+    fun findWordsWithPattern(pattern: String): LiveData<List<Word>>
 }

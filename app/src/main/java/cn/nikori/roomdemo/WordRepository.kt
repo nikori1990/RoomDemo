@@ -21,6 +21,10 @@ class WordRepository(context: Context) {
         return allWordsLive
     }
 
+    fun findWordsWithPattern(pattern: String): LiveData<List<Word>> {
+        return wordDao.findWordsWithPattern("%$pattern%")
+    }
+
     fun insertWords(vararg words: Word) {
         InsertAsyncTask(wordDao).execute(*words)
     }

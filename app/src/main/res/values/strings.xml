@@ -7,4 +7,7 @@
     <string name="hint_chinese">中文释义</string>
     <string name="btn_save">保存</string>
     <string name="text_add_word">添加单词</string>
+    <string name="text_clear_data">清空数据</string>
+    <string name="text_switch_view">切换视图</string>
+    <string name="search">Search</string>
 </resources>

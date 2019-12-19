@@ -11,6 +11,10 @@ class WordViewModel(application: Application) : AndroidViewModel(application) {
         return wordRepository.getAllWords()
     }
 
+    fun findWordsWithPattern(pattern: String): LiveData<List<Word>> {
+        return wordRepository.findWordsWithPattern(pattern)
+    }
+
     fun insertWords(vararg words: Word) {
         wordRepository.insertWords(*words)
     }
