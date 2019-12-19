@@ -1,7 +1,6 @@
 package cn.nikori.roomdemo
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -20,9 +19,13 @@ class MainActivity : AppCompatActivity() {
 
         wordViewModel = ViewModelProviders.of(this).get(WordViewModel::class.java)
         wordViewModel.getAllWords().observe(this, Observer<List<Word>> {
-            Log.e("myLog", "viewModel observe")
+            val temp = adapter1.itemCount
             adapter1.setData(it)
             adapter2.setData(it)
+            if (temp != it.size) {
+                adapter1.notifyDataSetChanged()
+                adapter2.notifyDataSetChanged()
+            }
         })
 
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -57,17 +60,5 @@ class MainActivity : AppCompatActivity() {
         btn_clear.setOnClickListener {
             wordViewModel.deleteAllWords()
         }
-
-//        btn_update.setOnClickListener {
-//            val word = Word("Hi", "你好啊")
-//            word.id = 75
-//            wordViewModel.updateWords(word)
-//        }
-//
-//        btn_delete.setOnClickListener {
-//            val word = Word("Hi", "你好啊")
-//            word.id = 80
-//            wordViewModel.deleteWords(word)
-//        }
     }
 }

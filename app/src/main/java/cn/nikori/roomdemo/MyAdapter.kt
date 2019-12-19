@@ -2,13 +2,12 @@ package cn.nikori.roomdemo
 
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.cell_normal_2.view.*
 
-class MyAdapter(private val userCardView: Boolean, val wordViewModel: WordViewModel) :
+class MyAdapter(private val userCardView: Boolean, private val wordViewModel: WordViewModel) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
 
     private var list = ArrayList<Word>()
@@ -16,9 +15,6 @@ class MyAdapter(private val userCardView: Boolean, val wordViewModel: WordViewMo
     fun setData(data: List<Word>) {
         list.clear()
         list.addAll(data)
-        if (list.size != data.size) {
-            notifyDataSetChanged()
-        }
     }
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
@@ -47,8 +43,8 @@ class MyAdapter(private val userCardView: Boolean, val wordViewModel: WordViewMo
 
         itemView.switch_invisible.setOnCheckedChangeListener { buttonView, isChecked ->
             data.chineseInvisible = isChecked
-            Log.e("myLog", "listener ${data.chineseInvisible}")
             wordViewModel.updateWords(data)
+            itemView.setData(data, position + 1)
         }
     }
 

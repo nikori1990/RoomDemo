@@ -17,5 +17,5 @@ class Word(
     var id: Int = 0
 
     @ColumnInfo(name = "chinese_invisible")
-    var chineseInvisible: Boolean = true
+    var chineseInvisible: Boolean = false
 }

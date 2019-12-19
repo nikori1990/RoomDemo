@@ -21,10 +21,10 @@ class MyView(context: Context?, useCardView: Boolean) : RelativeLayout(context) 
             switch_invisible.isChecked = false
         }
     }
-    
+
     init {
         if (useCardView) {
-            View.inflate(context, R.layout.cell_card, this)
+            View.inflate(context, R.layout.cell_card_2, this)
         } else {
             View.inflate(context, R.layout.cell_normal_2, this)
         }
