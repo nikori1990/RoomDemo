@@ -4,6 +4,7 @@ package cn.nikori.roomdemo
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
@@ -12,7 +13,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_words.*
 
 /**
@@ -29,6 +34,10 @@ class WordsFragment : Fragment() {
     private val adapter2 by lazy { MyAdapter(true, wordViewModel) }
 
     private lateinit var filteredWords: LiveData<List<Word>>
+
+    private lateinit var allWords: List<Word>
+
+    private lateinit var dividerItemDecoration: DividerItemDecoration
 
     init {
         setHasOptionsMenu(true)
@@ -47,8 +56,9 @@ class WordsFragment : Fragment() {
 
         wordViewModel = ViewModelProviders.of(requireActivity()).get(WordViewModel::class.java)
         filteredWords = wordViewModel.getAllWords()
-        filteredWords.observe(requireActivity(), Observer<List<Word>> {
+        filteredWords.observe(viewLifecycleOwner, Observer<List<Word>> {
             val temp = adapter1.itemCount
+            allWords = it
             adapter1.setData(it)
             adapter2.setData(it)
             if (temp != it.size) {
@@ -63,11 +73,42 @@ class WordsFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireActivity())
         val shp = requireActivity().getSharedPreferences(VIEW_TYPE, Context.MODE_PRIVATE)
         val viewType = shp.getBoolean(IS_USING_CARD_VIEW, false)
+
+        dividerItemDecoration =
+            DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL)
+
         if (viewType) {
             recyclerView.adapter = adapter2
+            recyclerView.removeItemDecoration(dividerItemDecoration)
         } else {
             recyclerView.adapter = adapter1
+            recyclerView.addItemDecoration(dividerItemDecoration)
+
         }
+
+        ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.START) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val word = allWords[viewHolder.adapterPosition]
+                Log.e("myLog", word.toString())
+//                wordViewModel.deleteWords(word)
+//                Snackbar.make(this, "删除了一个词汇", Snackbar.LENGTH_SHORT)
+                Snackbar.make(
+                    requireView().findViewById(R.id.wordsFragmentLayout),
+                    "删除了一条数据",
+                    Snackbar.LENGTH_SHORT
+                ).setAction("撤销", {
+                    //                    wordViewModel.insertWords(word)
+                }).show()
+            }
+        }).attachToRecyclerView(recyclerView)
 
         floatingActionButton.setOnClickListener {
             Navigation.findNavController(it).navigate(R.id.action_wordsFragment_to_addFragment)
@@ -102,9 +143,11 @@ class WordsFragment : Fragment() {
                 with(shp.edit()) {
                     if (recyclerView.adapter == adapter1) {
                         recyclerView.adapter = adapter2
+                        recyclerView.removeItemDecoration(dividerItemDecoration)
                         this.putBoolean(IS_USING_CARD_VIEW, true)
                     } else {
                         recyclerView.adapter = adapter1
+                        recyclerView.addItemDecoration(dividerItemDecoration)
                         this.putBoolean(IS_USING_CARD_VIEW, false)
                     }
                     apply()
@@ -127,10 +170,11 @@ class WordsFragment : Fragment() {
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 newText?.let { pattern ->
-                    filteredWords.removeObservers(requireActivity())
+                    filteredWords.removeObservers(viewLifecycleOwner)
                     filteredWords = wordViewModel.findWordsWithPattern(pattern)
-                    filteredWords.observe(requireActivity(), Observer { list ->
+                    filteredWords.observe(viewLifecycleOwner, Observer { list ->
                         val temp = adapter1.itemCount
+                        allWords = list
                         adapter1.setData(list)
                         adapter2.setData(list)
                         if (temp != list.size) {

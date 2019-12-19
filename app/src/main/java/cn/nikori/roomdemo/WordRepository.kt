@@ -42,22 +42,22 @@ class WordRepository(context: Context) {
     }
 
     class InsertAsyncTask(private val wordDao: WordDao) : AsyncTask<Word, Void, Void>() {
-        override fun doInBackground(vararg words: Word?): Void? {
-            wordDao.insertWords(*words as Array<out Word>)
+        override fun doInBackground(vararg words: Word): Void? {
+            wordDao.insertWords(*words)
             return null
         }
     }
 
     class UpdateAsyncTask(private val wordDao: WordDao) : AsyncTask<Word, Void, Void>() {
-        override fun doInBackground(vararg words: Word?): Void? {
-            wordDao.updateWords(*words as Array<out Word>)
+        override fun doInBackground(vararg words: Word): Void? {
+            wordDao.updateWords(*words)
             return null
         }
     }
 
     class DeleteAsyncTask(private val wordDao: WordDao) : AsyncTask<Word, Void, Void>() {
-        override fun doInBackground(vararg words: Word?): Void? {
-            wordDao.deleteWords(*words as Array<out Word>)
+        override fun doInBackground(vararg words: Word): Void? {
+            wordDao.deleteWords(*words)
             return null
         }
     }
