@@ -2,63 +2,23 @@ package cn.nikori.roomdemo
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var wordViewModel: WordViewModel
-
-    private val adapter1 by lazy { MyAdapter(false, wordViewModel) }
-    private val adapter2 by lazy { MyAdapter(true, wordViewModel) }
+    private val navController by lazy { Navigation.findNavController(findViewById(R.id.fragment)) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        NavigationUI.setupActionBarWithNavController(
+            this,
+            navController
+        )
+    }
 
-        wordViewModel = ViewModelProviders.of(this).get(WordViewModel::class.java)
-        wordViewModel.getAllWords().observe(this, Observer<List<Word>> {
-            val temp = adapter1.itemCount
-            adapter1.setData(it)
-            adapter2.setData(it)
-            if (temp != it.size) {
-                adapter1.notifyDataSetChanged()
-                adapter2.notifyDataSetChanged()
-            }
-        })
-
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter1
-
-        switch1.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                recyclerView.adapter = adapter2
-            } else {
-                recyclerView.adapter = adapter1
-            }
-        }
-
-        btn_insert.setOnClickListener {
-            val english = arrayOf(
-                "Hello", "World", "Android", "Google",
-                "Studio", "Project", "Database", "Recycler", "View",
-                "String", "Value", "Integer"
-            )
-
-            val chinese = arrayOf(
-                "你好", "世界", "安卓", "谷歌",
-                "工作室", "项目", "数据库", "回收站", "视图",
-                "字符串", "价值", "整数"
-            )
-
-            for (i: Int in english.indices) {
-                wordViewModel.insertWords(Word(english[i], chinese[i]))
-            }
-        }
-
-        btn_clear.setOnClickListener {
-            wordViewModel.deleteAllWords()
-        }
+    override fun onSupportNavigateUp(): Boolean {
+        navController.navigateUp()
+        return super.onSupportNavigateUp()
     }
 }

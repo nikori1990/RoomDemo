@@ -1,14 +1,12 @@
 package cn.nikori.roomdemo
 
 import android.content.Context
-import android.util.Log
 import android.view.View
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.cell_normal_2.view.*
 
 class MyView(context: Context?, useCardView: Boolean) : RelativeLayout(context) {
     fun setData(data: Word, index: Int) {
-        Log.e("myLog", "set data ${data.chineseInvisible}")
         tv_number.text = index.toString()
         tv_english.text = data.word
         tv_chinese.text = data.chineseMeaning
