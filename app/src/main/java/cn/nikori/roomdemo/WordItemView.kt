@@ -5,7 +5,7 @@ import android.view.View
 import android.widget.RelativeLayout
 import kotlinx.android.synthetic.main.cell_normal_2.view.*
 
-class MyView(context: Context?, useCardView: Boolean) : RelativeLayout(context) {
+class WordItemView(context: Context?, useCardView: Boolean) : RelativeLayout(context) {
     fun setData(data: Word, index: Int) {
         tv_number.text = index.toString()
         tv_english.text = data.word

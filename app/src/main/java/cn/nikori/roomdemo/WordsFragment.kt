@@ -1,6 +1,5 @@
 package cn.nikori.roomdemo
 
-
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +10,7 @@ import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -30,8 +29,8 @@ class WordsFragment : Fragment() {
 
     private lateinit var wordViewModel: WordViewModel
 
-    private val adapter1 by lazy { MyAdapter(false, wordViewModel) }
-    private val adapter2 by lazy { MyAdapter(true, wordViewModel) }
+    private lateinit var listAdapter1: WordListAdapter
+    private lateinit var listAdapter2: WordListAdapter
 
     private lateinit var filteredWords: LiveData<List<Word>>
 
@@ -54,19 +53,20 @@ class WordsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        wordViewModel = ViewModelProviders.of(requireActivity()).get(WordViewModel::class.java)
-        filteredWords = wordViewModel.getAllWords()
-        filteredWords.observe(viewLifecycleOwner, Observer<List<Word>> {
-            val temp = adapter1.itemCount
-            allWords = it
-            adapter1.setData(it)
-            adapter2.setData(it)
-            if (temp != it.size) {
-//                adapter1.notifyDataSetChanged()
-//                adapter2.notifyDataSetChanged()
-                // 平滑
-                adapter1.notifyItemInserted(0)
-                adapter2.notifyItemInserted(0)
+        wordViewModel = ViewModelProvider(this).get(WordViewModel::class.java)
+
+        listAdapter1 = WordListAdapter(false, wordViewModel)
+        listAdapter2 = WordListAdapter(true, wordViewModel)
+
+        filteredWords = wordViewModel.allWords
+        filteredWords.observe(viewLifecycleOwner, Observer { words ->
+            val temp = listAdapter1.itemCount
+            allWords = words
+            listAdapter1.setWords(words)
+            listAdapter2.setWords(words)
+            if (temp != words.size) {
+                listAdapter1.notifyItemInserted(0)
+                listAdapter2.notifyItemInserted(0)
             }
         })
 
@@ -78,10 +78,10 @@ class WordsFragment : Fragment() {
             DividerItemDecoration(requireActivity(), DividerItemDecoration.VERTICAL)
 
         if (viewType) {
-            recyclerView.adapter = adapter2
+            recyclerView.adapter = listAdapter2
             recyclerView.removeItemDecoration(dividerItemDecoration)
         } else {
-            recyclerView.adapter = adapter1
+            recyclerView.adapter = listAdapter1
             recyclerView.addItemDecoration(dividerItemDecoration)
 
         }
@@ -98,14 +98,14 @@ class WordsFragment : Fragment() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val word = allWords[viewHolder.adapterPosition]
                 Log.e("myLog", word.toString())
-//                wordViewModel.deleteWords(word)
+                wordViewModel.delete(word)
 //                Snackbar.make(this, "删除了一个词汇", Snackbar.LENGTH_SHORT)
                 Snackbar.make(
                     requireView().findViewById(R.id.wordsFragmentLayout),
                     "删除了一条数据",
                     Snackbar.LENGTH_SHORT
                 ).setAction("撤销", {
-                    //                    wordViewModel.insertWords(word)
+                    wordViewModel.insert(word)
                 }).show()
             }
         }).attachToRecyclerView(recyclerView)
@@ -130,7 +130,7 @@ class WordsFragment : Fragment() {
                 builder.setTitle("清空数据")
                 builder.setPositiveButton(
                     "确定"
-                ) { _, _ -> wordViewModel.deleteAllWords() }
+                ) { _, _ -> wordViewModel.deleteAll() }
                 builder.setNegativeButton(
                     "取消"
                 ) { _, _ -> }
@@ -141,12 +141,12 @@ class WordsFragment : Fragment() {
                 val shp = requireActivity().getSharedPreferences(VIEW_TYPE, Context.MODE_PRIVATE)
                 shp.getBoolean(IS_USING_CARD_VIEW, false)
                 with(shp.edit()) {
-                    if (recyclerView.adapter == adapter1) {
-                        recyclerView.adapter = adapter2
+                    if (recyclerView.adapter == listAdapter1) {
+                        recyclerView.adapter = listAdapter2
                         recyclerView.removeItemDecoration(dividerItemDecoration)
                         this.putBoolean(IS_USING_CARD_VIEW, true)
                     } else {
-                        recyclerView.adapter = adapter1
+                        recyclerView.adapter = listAdapter1
                         recyclerView.addItemDecoration(dividerItemDecoration)
                         this.putBoolean(IS_USING_CARD_VIEW, false)
                     }
@@ -173,13 +173,13 @@ class WordsFragment : Fragment() {
                     filteredWords.removeObservers(viewLifecycleOwner)
                     filteredWords = wordViewModel.findWordsWithPattern(pattern)
                     filteredWords.observe(viewLifecycleOwner, Observer { list ->
-                        val temp = adapter1.itemCount
+                        val temp = listAdapter1.itemCount
                         allWords = list
-                        adapter1.setData(list)
-                        adapter2.setData(list)
+                        listAdapter1.setWords(list)
+                        listAdapter2.setWords(list)
                         if (temp != list.size) {
-                            adapter1.notifyDataSetChanged()
-                            adapter2.notifyDataSetChanged()
+                            listAdapter1.notifyDataSetChanged()
+                            listAdapter2.notifyDataSetChanged()
                         }
                     })
                 }

@@ -10,7 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import kotlinx.android.synthetic.main.fragment_add.*
 
@@ -32,7 +32,7 @@ class AddFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        wordViewModel = ViewModelProviders.of(requireActivity()).get(WordViewModel::class.java)
+        wordViewModel = ViewModelProvider(this).get(WordViewModel::class.java)
 
         btn_save.isEnabled = false
         et_english.requestFocus()
@@ -58,7 +58,7 @@ class AddFragment : Fragment() {
 
         btn_save.setOnClickListener {
             val word = Word(et_english.text.toString(), et_chinese.text.toString())
-            wordViewModel.insertWords(word)
+            wordViewModel.insert(word)
             Navigation.findNavController(it).navigateUp()
             imm.hideSoftInputFromWindow(it.windowToken, 0)
         }
